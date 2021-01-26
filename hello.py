@@ -72,13 +72,21 @@ print()
 
 # Lines from 74 to 80 are from Zeo Riell, 2021
 # Q7
-C = cookies.SimpleCookie(os.environ["HTTP_COOKIE"])
+# C = cookies.SimpleCookie(os.environ["HTTP_COOKIE"])
+# user_c = None
+# pwd_c = None 
+# if C.get("UserID"):
+#     user_c = C.get("UserID").value
+# if C.get("UserPassword"):
+#     pwd_c = C.get("UserPassword").value
+
 user_c = None
 pwd_c = None 
-if C.get("UserID"):
-    user_c = C.get("UserID").value
-if C.get("UserPassword"):
-    pwd_c = C.get("UserPassword").value
+
+if os.environ['HTTP_COOKIE']:
+    cookie = os.environ['HTTP_COOKIE'].split(';')
+    user_c = str(cookie[0].split('=')[1])
+    pwd_c = str(cookie[1].split('=')[1])
 
 # if no any correct input received and has no correct cookies -> login page
 if not (user == username and pwd == password) and not (user_c == username and pwd_c == password):
