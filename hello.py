@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
 
 import cgi, cgitb
-import json
 import os
-import sys
-import requests
+import json
 from templates import login_page, secret_page
 from secret import username, password
 from http import cookies
@@ -60,37 +58,34 @@ from http import cookies
 # """)
 
 
-# FROM: https://eclass.srv.ualberta.ca/mod/page/view.php?id=4987525, 2021-01-25, by Hazel Campbell, 2021
-# Q4
-print(login_page())
-print("Correct username and passward: abc, 123")
-posted_bytes = os.environ.get("CONTENT_LENGTH", 0)
-if posted_bytes:
-    posted = sys.stdin.read(int(posted_bytes))
-    # print(f"<p> POSTED: <pre>")
-    #for line in posted.splitlines():
-        # print(line)
-    # print("</pre></p>")
-# END FROM
+# Lines from 66 to 73 are from Zeo Riell, 2021
+# Correct username and passward: abc, 123
+# Q5
+form = cgi.FieldStorage()
+user = form.getfirst("username")
+pwd = form.getfirst("password")
+print('Content-Type: text/html')
+if (user == username and pwd == password):
+    print("Set-Cookie: UserID={}".format(user))
+    print("Set-Cookie: UserPassword={}".format(pwd))
+print()
 
-# FROM: https://docs.python.org/3/library/http.cookies.html
-    # Q5
-    posted = posted.split("&")
-    posted = [i.split('=', 1)[1] for i in posted]
-    if (username == posted[0]) and (password == posted[1]):
-        print("Login Correct! Setting Cookies...")
-        C = cookies.SimpleCookie()
-        C["username"] = posted[0]
-        C["password"] = posted[1]
-        #print(C)
-
-        # Q6
-        #print(C.output(header="Cookie"))
-        #C.load("username=abc; password=123")
-        #print(C)
-        print("Complete!")
-        print(secret_page(posted[0], posted[1]))
-# END FROM
-
+# Lines from 74 to 80 are from Zeo Riell, 2021
 # Q7
+C = cookies.SimpleCookie(os.environ["HTTP_COOKIE"])
+user_c = None
+pwd_c = None 
+if C.get("UserID"):
+    user_c = C.get("UserID").value
+if C.get("UserPassword"):
+    pwd_c = C.get("UserPassword").value
 
+# if no any correct input received and has no correct cookies -> login page
+if not (user == username and pwd == password) and not (user_c == username and pwd_c == password):
+    print(login_page())
+
+else:
+    if (user_c or pwd_c): 
+        print(secret_page(user_c, pwd_c))
+    else:
+        print(secret_page(user, pwd))
